@@ -50,3 +50,9 @@ def index():
 def logout():
 	return render_template("index.html")
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+@app.route('/signin')
+def signin():
+	return render_template("signin.html")
+@app.route('/signup')
+def signup():
+	return render_template("signup.html")
