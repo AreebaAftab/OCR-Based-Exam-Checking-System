@@ -87,8 +87,8 @@ def print_percentage(prct, msg=None):
     stdout.write("] "+str(prct)+"%")
     stdout.flush()
 
-df2=pd.read_csv("C:/Users/Areeba Aftab/Documents/fyp/checker/github/handwritten/Handwritten-Names-Recognition-master/Notebook/new alphabets.csv", sep=',',header=None)
-df3=pd.read_csv("C:/Users/Areeba Aftab/Documents/fyp/checker/github/handwritten/Handwritten-Names-Recognition-master/Notebook/alphabets test.csv", sep=',',header=None)
+df2=pd.read_csv("../new alphabets.csv", sep=',',header=None)
+df3=pd.read_csv("../alphabets test.csv", sep=',',header=None)
 
 
 def delborders(crop):
@@ -113,3 +113,84 @@ def delborders(crop):
     
     return crop
     
+def getcrop(n):
+    image = cv2.imread(df2[1][n])
+    
+    
+    #plt.imshow(image) 
+    imgh, imgw = image.shape[:-1]
+    img_rgb = image.copy()
+    template = cv2.imread("../template.png")
+    h, w = template.shape[:-1]
+    
+    template_match_success = False
+    res = cv2.matchTemplate(img_rgb, template, cv2.TM_CCOEFF_NORMED)
+    threshold = .7
+    loc = np.where(res >= threshold)
+    for pt in zip(*loc[::-1]):  # Switch collumns agetd rows
+        cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
+        croph1 = pt[1]
+        croph2 = pt[1]+h
+        cropw = pt[0] + w
+        template_match_success = True
+        
+    
+    if (not template_match_success):
+        #Template matching has failed so return...
+        crop = image.copy()
+        crop = color.rgb2gray(crop)
+          
+        return crop, True
+        
+    
+    if (df2[3][n] == 'first' or df2[3][n] == 'last'):
+        crop = image.copy()[max(croph1-6, 0):min(croph2+6, imgh), cropw:imgw]
+    else:
+        crop = image.copy()[max(min(croph2+4, imgh-1), 0):imgh, :]
+        
+    crop = color.rgb2gray(crop)
+    if (df2[3][n] == 'first_b' or df2[3][n] == 'last_b'):
+        crop = delborders(crop)
+    crop = cv2.resize(crop, dsize=(315,24), interpolation=cv2.INTER_CUBIC)
+    return crop, True
+
+def getcrop1(n):
+    image = cv2.imread(df3[1][n])
+    
+    
+    #plt.imshow(image) 
+    imgh, imgw = image.shape[:-1]
+    img_rgb = image.copy()
+    template = cv2.imread("../template.png")
+    h, w = template.shape[:-1]
+    
+    template_match_success = False
+    res = cv2.matchTemplate(img_rgb, template, cv2.TM_CCOEFF_NORMED)
+    threshold = .7
+    loc = np.where(res >= threshold)
+    for pt in zip(*loc[::-1]):  # Switch collumns and rows
+        cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
+        croph1 = pt[1]
+        croph2 = pt[1]+h
+        cropw = pt[0] + w
+        template_match_success = True
+        
+    
+    if (not template_match_success):
+        #Template matching has failed so return...
+        crop = image.copy()
+        crop = color.rgb2gray(crop)
+          
+        return crop, True
+        
+    
+    if (df3[2][n] == 'first' or df3[2][n] == 'last'):
+        crop = image.copy()[max(croph1-6, 0):min(croph2+6, imgh), cropw:imgw]
+    else:
+        crop = image.copy()[max(min(croph2+4, imgh-1), 0):imgh, :]
+        
+    crop = color.rgb2gray(crop)
+    if (df3[2][n] == 'first_b' or df3[2][n] == 'last_b'):
+        crop = delborders(crop)
+    crop = cv2.resize(crop, dsize=(315,24), interpolation=cv2.INTER_CUBIC)
+    return crop, True
