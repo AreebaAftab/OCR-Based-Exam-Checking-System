@@ -56,3 +56,9 @@ def signin():
 @app.route('/signup')
 def signup():
 	return render_template("signup.html")
+def check():
+	return render_template("check.html",username = fullname)
+@app.route('/result')
+def result():
+	return render_template("result.html",username = fullname)
+@app.route('/account', methods=['POST'])
