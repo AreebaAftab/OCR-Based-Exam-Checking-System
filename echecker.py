@@ -90,3 +90,26 @@ def print_percentage(prct, msg=None):
 df2=pd.read_csv("C:/Users/Areeba Aftab/Documents/fyp/checker/github/handwritten/Handwritten-Names-Recognition-master/Notebook/new alphabets.csv", sep=',',header=None)
 df3=pd.read_csv("C:/Users/Areeba Aftab/Documents/fyp/checker/github/handwritten/Handwritten-Names-Recognition-master/Notebook/alphabets test.csv", sep=',',header=None)
 
+
+def delborders(crop):
+    cropf = ndimage.gaussian_filter(crop, 0.5)
+    cropbin = (cropf<0.8)
+    labeled, nr_objects = ndimage.label(cropbin)
+    labels_to_delete = []
+    for i in range(0, labeled.shape[1]):
+        if (labeled[labeled.shape[0]-1][i] > 0):
+            labels_to_delete.append(labeled[labeled.shape[0]-1][i])
+    
+    label_in_delete = False
+    for x in range(0, labeled.shape[1]):
+        for y in range(0, labeled.shape[0]):
+            label_in_delete = False
+            for l in range(0, len(labels_to_delete)):
+                if (labeled[y][x] == labels_to_delete[l]):
+                    label_in_delete = True
+            
+            if(label_in_delete):
+                crop[y][x] = 1.0
+    
+    return crop
+    
