@@ -87,3 +87,6 @@ def print_percentage(prct, msg=None):
     stdout.write("] "+str(prct)+"%")
     stdout.flush()
 
+df2=pd.read_csv("C:/Users/Areeba Aftab/Documents/fyp/checker/github/handwritten/Handwritten-Names-Recognition-master/Notebook/new alphabets.csv", sep=',',header=None)
+df3=pd.read_csv("C:/Users/Areeba Aftab/Documents/fyp/checker/github/handwritten/Handwritten-Names-Recognition-master/Notebook/alphabets test.csv", sep=',',header=None)
+
