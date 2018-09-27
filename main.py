@@ -74,3 +74,22 @@ def my_account():
 	cur.execute("INSERT INTO  userinfo (name,email,password,payment_type,cardno,cvc) VALUES(%s,%s,%s,%s,%s,%s)",(fullname,email,password,paymentmethod,cardno,cvc))
 	conn.commit()
 	return render_template("signin.html")
+@app.route('/login', methods=['POST'])
+def my_login():
+	global fullname
+	fullname = request.form.get('uname')
+	pasword = request.form.get('pass')
+	conn=psycopg2.connect("dbname=checker user=postgres password=areeba host=localhost")
+	cur=conn.cursor()
+	cur.execute("SELECT NAME,PASSWORD from userinfo where NAME=%s AND PASSWORD=%s",(fullname,pasword))
+	rows=cur.fetchall()
+	print("count is",len(rows))
+	if (len(rows)==1):
+		session['username']=fullname	
+		session['password']=pasword
+		print(session['username'])	
+		print(session['password'])
+		
+		return render_template("make.html",username = session['username'])
+	else:
+		return("404 page")
