@@ -34,3 +34,12 @@ import numpy as np
 import argparse
 import imutils
 import cv2
+import os.path
+
+import pymysql
+# with __main__.test_request_context():
+# 	session['mcou']
+
+
+app=Flask(__name__)
+app.secret_key = os.urandom(24)
