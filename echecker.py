@@ -31,3 +31,42 @@ if (save_results):
 
 # Define if you want to print errors and warnings
 enable_error_output = False
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import plotly.offline as py
+py.init_notebook_mode(connected=True)
+import plotly.graph_objs as go
+import plotly.tools as tls
+import scipy
+import sklearn
+import pandas as pd
+from sklearn import linear_model, datasets, metrics
+#from sklearn.model_selection import train_test_split
+from sklearn.cross_validation import train_test_split
+from sklearn.preprocessing import binarize
+from sklearn.neural_network import BernoulliRBM, MLPClassifier
+from sklearn.datasets import fetch_mldata
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from skimage import data, color, exposure, measure
+from skimage.transform import resize
+from skimage.feature import hog
+from sklearn.manifold import TSNE
+from sklearn.externals import joblib
+
+from io import StringIO
+import cv2
+from scipy import ndimage
+from difflib import SequenceMatcher
+from sys import stdout
+from IPython.display import clear_output
+import os
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+import string
+from nltk.corpus import wordnet as wn 
+import gensim
