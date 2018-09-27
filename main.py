@@ -62,3 +62,15 @@ def check():
 def result():
 	return render_template("result.html",username = fullname)
 @app.route('/account', methods=['POST'])
+def my_account():
+	fullname = request.form.get('fullname')
+	email = request.form.get('email')
+	password = request.form.get('pass')
+	paymentmethod = request.form.get('payment-method')
+	cardno = request.form.get('cardno')
+	cvc = request.form.get('cvc')
+	conn=psycopg2.connect("dbname=checker user=postgres password=areeba host=localhost")
+	cur=conn.cursor()
+	cur.execute("INSERT INTO  userinfo (name,email,password,payment_type,cardno,cvc) VALUES(%s,%s,%s,%s,%s,%s)",(fullname,email,password,paymentmethod,cardno,cvc))
+	conn.commit()
+	return render_template("signin.html")
