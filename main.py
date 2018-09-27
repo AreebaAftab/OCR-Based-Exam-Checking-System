@@ -43,3 +43,10 @@ import pymysql
 
 app=Flask(__name__)
 app.secret_key = os.urandom(24)
+@app.route('/')
+def index():
+	return render_template("index.html")
+@app.route('/logout')
+def logout():
+	return render_template("index.html")
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
