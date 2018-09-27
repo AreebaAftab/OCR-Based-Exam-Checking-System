@@ -70,3 +70,20 @@ from nltk.corpus import stopwords
 import string
 from nltk.corpus import wordnet as wn 
 import gensim
+
+def print_percentage(prct, msg=None):
+    if (prct > 100 or prct < 0):
+        return
+    clear_output(wait=True)
+    if (msg == None):
+        stdout.write("Progress: [")
+    else:
+        stdout.write(msg+" [")
+    end = int(int(prct)/10)
+    for i in range(0, end):
+        stdout.write("=")
+    for i in range(end, 10):
+        stdout.write(" ")
+    stdout.write("] "+str(prct)+"%")
+    stdout.flush()
+
