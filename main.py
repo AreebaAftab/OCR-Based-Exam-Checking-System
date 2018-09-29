@@ -371,5 +371,25 @@ def mcqpdf():
                                filename='pdfdemo.pdf',
                                mimetype='application/pdf')
 	# return render_template("pdfdemo.pdf")
+@app.route('/makedescriptive', methods=['POST'])
+def make_descriptive():
+	
+	# session['mcou'] = isset($_SESSION['mcou'] ? $_SESSION['mcou'] : 0);
+	# mcqsession=session['mcou']
+	session['tcou'] = session.get('tcou',0) 
+	thnextbtn = request.form.get('th_next')
+	thfinishbtn = request.form.get('th_finish')
+	thpreviewbtn = request.form.get('th_preview')
+	global thfinish_btn
+	# os.remove('mcq.txt')
+	
+	
+	
+
+	
+
+	if thnextbtn=='thnextclick':
+        
+    
             
 
