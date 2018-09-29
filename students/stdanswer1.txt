@@ -1,0 +1,12 @@
+What is computer?
+
+A computer is a device that accepts information (in the form of digitalized data) and manipulates it for some result based on a program or sequence of instructions on how the data is to be processed. Complex computers also include the means for storing data (including the program, which is also a form of data) for some necessary duration.
+
+What is the difference between Internet and Intranet?
+
+Internet is a worldwide/global system of interconnected computer networks. It uses the standard Internet Protocol (TCP/IP). Every computer in Internet is identified by a unique IP address.A special computer DNS (Domain Name Server) is used to provide a name to the IP Address so that the user can locate a computer by a name.
+while Intranet is the system in which multiple PCs are connected to each other. PCs in intranet are not available to the world outside the intranet. Usually each organization has its own Intranet network and members/employees of that organization can access the computers in their intranet.Each computer in Intranet is also identified by an IP Address which is unique among the computers in that Intranet.
+
+What is an operating system? Also give some Examples?
+
+An operating system (OS) is the program that, after being initially loaded into the computer by a boot program, manages all the other programs in a computer. The other programs are called applications or application programs.
