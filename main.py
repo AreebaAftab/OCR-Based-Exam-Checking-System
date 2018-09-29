@@ -1252,7 +1252,71 @@ def definition_file():
 	    with open(c,'r') as myfile:
 	        lines=myfile.readlines()[b+1:d]
 	        #print(lines)
-	            
+	        lines = [''.join(a for a in s if a not in string.punctuation) for s in lines]
+	        q=[]
+	        AllWords = list()      #create new list
+	        ResultList = list()
+	        for line in lines:
+	            line.rstrip()   #strip white space
+	            words = line.split()    #split lines of words and make list
+	            AllWords.extend(words)   #make the list from 4 lists to 1 list
+
+	        AllWords.sort()  #sort list
+
+	        for word in AllWords:   #for each word in line.split()
+	              if word not in ResultList:    #if a word isn't in line.split            
+	                    ResultList.append(word)   #append it.
+	         #print(ResultList)
+	             #query_doc = [w.lower() for w in word_tokenize(line) if w not in stop_words]
+	             #print(query_doc)
+	        query_doc = [w.lower() for w in ResultList if w not in stop_words]
+
+	        #print(query_doc)
+	        query_doc_bow = dictionary2.doc2bow(query_doc)
+	        #print(query_doc_bow)
+	        query_doc_tf_idf = tf_idf2[query_doc_bow]
+	        #print(query_doc_tf_idf)
+	        a=sims2[query_doc_tf_idf]
+	        q=[a[i] for i, e in enumerate(a) if e != 0]  
+	        acc2=sum(q) 
+	        print(acc2)                     
+	    
+	    c= teathdestination                 
+	    with open(c,'r') as myfile:
+	        lines=myfile.readlines()[d+1:e]
+	        #print(lines)
+	        lines = [''.join(a for a in s if a not in string.punctuation) for s in lines]
+	        q=[]
+	        AllWords = list()      #create new list
+	        ResultList = list()
+	        for line in lines:
+	            line.rstrip()   #strip white space
+	            words = line.split()    #split lines of words and make list
+	            AllWords.extend(words)   #make the list from 4 lists to 1 list
+
+	        AllWords.sort()  #sort list
+
+	        for word in AllWords:   #for each word in line.split()
+	              if word not in ResultList:    #if a word isn't in line.split            
+	                    ResultList.append(word)   #append it.
+	         #print(ResultList)
+	             #query_doc = [w.lower() for w in word_tokenize(line) if w not in stop_words]
+	             #print(query_doc)
+	        query_doc = [w.lower() for w in ResultList if w not in stop_words]
+
+	         #print(query_doc)
+	        query_doc_bow = dictionary3.doc2bow(query_doc)
+	        #print(query_doc_bow)
+	        query_doc_tf_idf = tf_idf3[query_doc_bow]
+	        #print(query_doc_tf_idf)
+	        a=sims3[query_doc_tf_idf]
+	        q=[a[i] for i, e in enumerate(a) if e != 0]  
+	        acc3=sum(q) 
+	        print(acc3)                
+
+
+	#student papers
+	    
     
             
 
