@@ -1,0 +1,30 @@
+To run Echecker flask web app on Your machiene,Follow the steps given below:
+
+1) Download and Install Python3.6.4 from  https://www.python.org/downloads/
+2)Download and Install PostgreSql from https://www.postgresql.org/download/
+3)Download and Install PgAdmin4 from https://www.pgadmin.org/download/pgadmin-4-windows/
+5)Import the given database file(checker.sql) in PgAdmin4 
+4)Run command prompt as an Administrator and redirect to your installed python folder using the command:
+    cd C:\Program Files\Python36
+5)Now using pip command install the following modules one by one.
+     pip install psycopg2
+     pip install pygresql
+     pip install flask
+     pip install flask-uploads
+     pip install gensim
+     pip install nltk
+     pip install fpdf
+     pip install imutils
+     pip install argparse
+     pip install numpy
+     pip install argparse
+     pip install cv2
+     pip install pillow
+     pip install wordnet
+6)Now write python and >> terminal appears run the following commands and close the terminal:
+        >> import nltk
+        >> nltk.download('wordnet')
+7)After unzip echecker_flask_app folder,open it and hold shift key and right click , select open command window here and write main.py
+as a result an ip is shown on your command prompt ,paste it on browser and our flask web app is running eg:http://127.0.0.1:5000
+     
+ 
