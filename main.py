@@ -440,7 +440,21 @@ def make_descriptive():
 
 	elif thfinishbtn=='thfinishclick':
 		session['tcou']+=1
-        
+       thpaper = request.form.get('th_paper')
+		thtmarks = request.form.get('th_tmarks')
+		thques = request.form.get('th_ques')
+		thmarks = request.form.get('th_marks')
+		
+		thfinish_btn="true"
+		conn=psycopg2.connect("dbname=checker user=postgres password=areeba host=localhost")
+		cur=conn.cursor()
+		cur.execute("SELECT userid from userinfo where name=%s",(fullname,))
+		rows=cur.fetchall()
+		uid=rows[0][0]
+		# print(user_id)
+		# cur.execute("INSERT INTO  paper (paper_name,userid) VALUES(%s,%s)",(mcqpaper,uid))
+		# conn.commit()
+		 
     
             
 
