@@ -389,6 +389,18 @@ def make_descriptive():
 	
 
 	if thnextbtn=='thnextclick':
+        session['tcou']+=1
+		global thpaper
+		global uid
+		global thtmarks
+		global thpaper
+		thpaper = request.form.get('th_paper')
+		thtmarks = request.form.get('th_tmarks')
+		thques = request.form.get('th_ques')
+		thmarks = request.form.get('th_marks')
+	
+		thnext_btn="true"
+		thfinish_btn="false"
         
     
             
