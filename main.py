@@ -93,3 +93,12 @@ def my_login():
 		return render_template("make.html",username = session['username'])
 	else:
 		return("404 page")
+@app.route('/mcqredirect')
+def mcq_world():
+	return render_template("make2.html",username = fullname,mcqtmarks=mcqtmarks,mpaper=mpaper)
+
+@app.route('/theoryredirect')
+def theory_world():
+	return render_template("make3.html",username = fullname,thtmarks=thtmarks,thpaper=thpaper)
+
+
