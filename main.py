@@ -401,7 +401,21 @@ def make_descriptive():
 	
 		thnext_btn="true"
 		thfinish_btn="false"
-        
+       conn=psycopg2.connect("dbname=checker user=postgres password=areeba host=localhost")
+		cur=conn.cursor()
+		# cur.execute("INSERT INTO  question (q_id,paper_name, total_marks, q_name,marks_of_q) VALUES(%s,%s,%s,%s,%s)",(session['mcou'],mcqpaper,mcqtmarks,mcqques,mcqmarks))
+		# conn.commit()
+		cur.execute("SELECT userid from userinfo where name=%s",(fullname,))
+		rows=cur.fetchall()
+		uid=rows[0][0]
+		print(uid)
+		cur.execute("SELECT paper_id from paper where paper_name=%s AND userid=%s",(thpaper,uid))
+		rows=cur.fetchall()
+		lenrows=len(rows)
+		print("rows in paper is : ",len(rows))
+	
+		if(lenrows==0):
+            
     
             
 
