@@ -488,7 +488,83 @@ def make_descriptive():
 		 
 		return redirect(url_for('theorypdf'))
 			
- 
+@app.route('/theorypdf')
+def theorypdf():
+	pdf=FPDF()
+	pdf.add_page()
+	pdf.set_font('Arial','B',14)
+	pdf.cell(100, 7, """          								                XYZ School Of Education And Excellence""",0,1 )
+	pdf.cell(100, 7, """          								 
+																   EXAMINATIONS:2017-2018""",0,1 )
+	pdf.cell(100, 7, """           								 
+																          BATCH:2014-2015""",0,1 )
+	filepath = 'theory.txt'  
+	with open('theory.txt') as f:
+		for i, l in enumerate(f):
+			pass
+		rows= i  
+	with open(filepath) as fp:
+		line = fp.readline()
+		cnt = 1
+		while line:
+			if cnt==rows-2:
+				pdf.set_font('Arial','B',14)
+				pdf.cell(100, 7, "																          		   				            "+line.strip() + "                         \r\n",0,1 )
+			line = fp.readline()
+			cnt += 1
+	with open('theory.txt') as f:
+		for i, l in enumerate(f):
+			pass
+		rows= i  
+	with open(filepath) as fp:
+		line = fp.readline()
+		cnt = 1
+		while line:
+			if cnt==rows:
+				pdf.set_font('Arial','B',14)
+				pdf.cell(101, 7, "																          		   				                                                              "+line.strip() + "                         \r\n",0,1 )
+			line = fp.readline()
+			cnt += 1
+	pdf.cell(100, 7, "",0,1 )
+	pdf.cell(100, 7, "Time:150mins\n",0,1 )
+	pdf.cell(100, 7, "",0,1 )
+	pdf.set_font('Arial','', 14)
+	pdf.cell(100, 7, "Instruction:",0,1 )
+	pdf.cell(100, 7, "			Read Paper Carefully",0,1 )
+	pdf.cell(100, 7, "",0,1 )
+	pdf.cell(100, 7, "",0,1 )
+	pdf.set_font('Arial','', 14)
+	filepath = 'theory.txt'
+	with open('theory.txt') as f:
+		for i, l in enumerate(f):
+			pass
+		rows= i 
+		secondlastrow=i-2 
+	with open(filepath) as fp:
+		line = fp.readline()
+		cnt = 1
+		while line:
+			
+			if cnt!=rows:
+				if cnt!=secondlastrow:
+					pdf.cell(120, 7, "\r\n"+line.strip() + "                         \r\n",0,1 )
+				
+			line = fp.readline()
+
+			cnt += 1
+    
+	if (os.path.isfile('theory.txt')):
+		os.remove('theory.txt')
+	
+	
+	pdf.output('templates/theorypdf.pdf','F')
+	return send_from_directory(directory='templates',
+                               filename='theorypdf.pdf',
+                               mimetype='application/pdf')
+	if (os.path.isfile('templates/theorypdf.pdf')):
+		os.remove('templates/theorypdf.pdf')
+	# return render_template("pdfdemo.pdf")
+    
     
             
 
