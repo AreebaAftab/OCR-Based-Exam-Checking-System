@@ -232,4 +232,138 @@ def gen_dataset1(n=df3.shape[0]):
     print("Finished!")
     return data1
 
- 
+ if (dataset_load_method == 'download'):
+    dataset, labels = gen_dataset(69)
+    dataset1 = gen_dataset1(12)
+
+    
+    
+
+# Load dataset from files
+if (dataset_load_method == 'load'):
+    dataset = np.load("C:/Users/Areeba Aftab/Desktop/checker/github/handwritten/Handwritten-Names-Recognition-master/Notebook/HandwrittenNames_data2.npz")['data']
+    labels = np.load("C:/Users/Areeba Aftab/Desktop/checker/github/handwritten/Handwritten-Names-Recognition-master/Notebook/HandwrittenNames_labels.npz")['data']
+
+# If specified, the generated dataset can be saved to .npz files using these functions.
+
+# In[ ]:
+
+# Save dataset to a file if defined
+if (save_dataset):
+    np.savez("C:/Users/Areeba Aftab/Desktop/checker/github/handwritten/Handwritten-Names-Recognition-master/Notebook/HandwrittenNames_data2.npz", data=dataset)
+    np.savez("C:/Users/Areeba Aftab/Desktop/checker/github/handwritten/Handwritten-Names-Recognition-master/Notebook/HandwrittenNames_labels2.npz", data=labels)
+
+
+# We can plot some images and print their corresponding labels to check that everything is correct: 
+
+# In[ ]:
+
+# Change selection to plot a different image and label
+selection = 7
+plt.imshow(dataset[selection], cmap='gray')
+plt.show()
+print(labels[selection])
+print(str(type(labels[7])))
+
+
+# # 3. Defining extra helpful functions
+# 
+# In this section of the notebook we will define some functions that will be useful later on.
+
+# ### get_labels
+# 
+# This function labels the connected components in an image by binarizing it and running a clustering method, it returns the labels and the number of labels it detects.
+
+# In[ ]:
+
+def get_labels(crop):
+    
+    img = crop.copy() # gray-scale image
+    
+    # You could smooth the image (to remove small objects) but we saw better results without using it...
+    # blur_radius = 0.5
+    # imgf = ndimage.gaussian_filter(img, blur_radius)
+    
+    threshold = 0.8
+    
+    # Find connected components
+    labeled, nr_objects = ndimage.label(img<threshold) 
+    #print("Number of objects is " +str(nr_objects))
+
+    # Find connected components
+    #labeled, nr_objects = ndimage.label(img<threshold) 
+                
+    return labeled, nr_objects   
+                   
+
+# ### get_bboxes
+# 
+# This function gets the bounding boxes to cut each character correctly given the labels obtained from get_labels. It returns a list of each character's bounding boxes (2 2D points).
+
+
+# In[ ]:
+
+def get_bboxes(labeled, nr_objects):
+    bboxes = np.zeros((nr_objects, 2, 2), dtype='int')
+
+    x1, y1, x2, y2 = 0, labeled.shape[0], 0, 0
+    coord = 0
+    cont = 0
+    ytop, ybot = 0, 0
+    nzero, firstb = False, False
+
+    for x in range(0, labeled.shape[1]):
+        nzero, firstb = False, False
+        ytop, ybot = 0, 0
+        for y in range(0, labeled.shape[0]):
+            if (labeled[y][x] > 0):
+                nzero = True
+                if (not firstb):
+                    ytop = y
+                    firstb = True
+                ybot = y
+
+        if (nzero):
+            if (ytop < y1):
+                y1 = ytop
+            if (ybot > y2):
+                y2 = ybot
+            if (coord == 0):
+                x1 = x
+                coord = 1
+            elif (coord == 1):
+                x2 = x
+        elif ((not nzero) and (coord == 1)):
+            bboxes[cont][0] = [x1, y1]
+            bboxes[cont][1] = [x2, y2]
+            cont += 1
+            coord = 0
+            x1, y1, x2, y2 = 0, labeled.shape[0], 0, 0
+
+    bboxes = bboxes[0:cont]
+    return bboxes, cont
+
+
+# ### crop_characters
+# 
+# Given an image and character bounding boxes this function crops each character in an image and returns each character's corresponding binarized image in a list.
+
+# In[ ]:
+
+def crop_characters(img, bboxes, n):
+    characters = []
+    for i in range(0, n):
+        c = img.copy()[bboxes[i][0][1]:bboxes[i][1][1], bboxes[i][0][0]:bboxes[i][1][0]]
+        if (c.shape[0] != 0 and c.shape[1] != 0):
+            c = resize(c, (28, 28), mode='constant', cval=1.0, clip=True)
+            characters.append((c<0.80).reshape(784))
+    return characters, len(characters)
+
+
+# ### labelsep
+# 
+# Separates a full name label into a character list. Useful for the training part to have the labels of each character.
+
+# In[ ]:
+
+
