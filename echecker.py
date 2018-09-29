@@ -366,4 +366,261 @@ def crop_characters(img, bboxes, n):
 
 # In[ ]:
 
+def labelsep(label):
+    if (type(label) is str or type(label) is np.str_):
+        decomposed_label = list(label)
+        labels = []
+        for i in range(0, len(decomposed_label)):
+            if (decomposed_label[i] != ' '):
+                labels.append(decomposed_label[i])
+        return labels
+    else:
+        return []
+
+
+# ### get_characters
+# 
+# Given an image from the dataset and its label this function splits each character into one image and a label. The img_only variant doesn't return the labels (useful when testing with full names to save some memory and time).
+
+# In[ ]:
+
+def get_characters(image, label):
+    labeled, nr_objects= get_labels(image)
+    
+    bboxes, n = get_bboxes(labeled, nr_objects)
+    characters, n_chars = crop_characters(image, bboxes, n)
+    labels = labelsep(label)
+    return characters, labels[0:n_chars]
+
+def get_characters_img_only(image):
+    labeled, nr_objects= get_labels(image)
+    bboxes, n = get_bboxes(labeled, nr_objects)
+    characters, n_chars = crop_characters(image, bboxes, n)
+    return characters
+
+#selection=2
+#image=dataset[selection]
+#def get_characters_img_only(image):
+#    labeled, nr_objects = get_labels(image)
+#    bboxes, n = get_bboxes(labeled, nr_objects)
+#    characters, n_chars = crop_characters(image, bboxes, n)
+#    return characters
+
+# ## Checking results
+# 
+# We can check if it extracts correctly all the data with these plots and prints
+
+# In[ ]:
+plt.imshow(dataset[selection], cmap='gray')
+
+selection = 7
+plt.imshow(dataset[selection], cmap='gray')
+plt.show()
+print(labels[selection])
+
+
+# In[ ]:
+selection = 7
+characters, charlabels= get_characters(dataset[selection], labels[selection])
+
+
+# In[ ]:
+
+for i in range(0, len(characters)):
+    plt.imshow(characters[i].reshape(28,28), cmap='gray')
+    plt.show()
+    
+print(str(charlabels))
+
+
+# # 4. Defining our models
+# 
+# We will define our four classifiers: MLP with RBM features, MLP with HOG features, MLP with PCA features and MLP only.
+
+# In[ ]:
+
+# Define if we want to print status of the training process
+verbose_classifiers = True
+
+
+# ### MLP with RBM features
+# We define a RBM with 300 components and a MLP with 3 layers of 300, 400 and 150 neurons respectively. Then whe combine them together into a Scikit-Learn Pipeline to chain the features of the RBM to the input of the MLP.
+
+# In[ ]:
+
+# RBM Definition
+rbm = BernoulliRBM(n_components=300, learning_rate=0.01, n_iter=45, random_state=0, verbose=verbose_classifiers)
+
+# MLP Classifier Definition 
+mlp = MLPClassifier(hidden_layer_sizes=(300,400,150), activation='relu', max_iter=5000, tol=0.0001, random_state=1, verbose=verbose_classifiers)
+
+# We define the pipeline afterwards: MLP Classifier with RBM features
+rbm_mlp_classifier = Pipeline(steps=[('rbm', rbm), ('mlp', mlp)])
+
+
+# ### MLP with HOG features
+# We define a MLP with 3 layers of 300, 400 and 150 neurons respectively to train it with the HOG features later on.
+
+# In[ ]:
+
+# MLP Classifier with HOG (Histogram of Oriented Gradients) features
+mlp_classifier_HOG = MLPClassifier(hidden_layer_sizes=(300,400,150), max_iter=5000, tol=0.001, random_state=1, verbose=verbose_classifiers)
+
+
+# ### MLP with PCA features
+# We define a MLP with 3 layers of 300, 400 and 150 neurons respectively to train it with the PCA features later on.
+
+# In[ ]:
+
+# MLP Classifier with PCA (Principal Component Analisis) features
+mlp_classifier_PCA = MLPClassifier(hidden_layer_sizes=(300,400,150), max_iter=5000, tol=0.0001, random_state=1, verbose=verbose_classifiers)
+
+
+# ### MLP
+# We define a MLP with 3 layers of 300, 400 and 150 neurons respectively to train it with the data later.
+
+# In[ ]:
+
+# MLP Only classifier
+mlp_classifier = MLPClassifier(hidden_layer_sizes=(300,400,150), max_iter=5000, tol=0.0001, random_state=1, verbose=verbose_classifiers)
+
+
+# # 5. Preparing the train and test batches
+
+# ### Splitting the dataset into train and test batches
+# 
+# We divide the dataset into 80% train 20% test batches:
+
+# In[ ]:
+
+#X_train, X_test, Y_train, Y_test = train_test_split(dataset, labels, test_size=0.2, random_state=0)
+X_train, Y_train = dataset, labels
+X_test1= dataset1
+
+
+# In[ ]:   
+ 
+print("Train batch lenghts:")
+print("X_train size: "+str(len(X_train)))
+print("Y_train size: "+str(len(Y_train)))
+print("")
+print("Test batch lenghts:")
+print("X_test size: "+str(len(X_test1)))
+#print("Y_test size: "+str(len(Y_test)))
+
+
+# ### Processing the train and test batches for characters
+# 
+# We process the train and test batches to divide the batches into single character batches instead of full names, this is needed to train and will be useful in case of the test to test per character precision later on.
+
+# In[ ]:
+
+X_train_chars = []
+Y_train_chars = []
+Train_with_inconsistencies = []
+z = 0
+for i in range(0, len(X_train)):
+    print_percentage(i*100/len(X_train), "Processing train image "+ str(i)+" :")
+    characters, charlabels= get_characters(X_train[i], Y_train[i])
+    if (len(characters) != len(charlabels) or len(characters) == 0 or len(charlabels) == 0):
+        if (enable_error_output):
+            print("[Warning] Input number "+str(i)+" inconsistent! Skipping this one...")
+        Train_with_inconsistencies.append(i)
+        z += 1
+    else:
+        X_train_chars.extend(characters)
+        Y_train_chars.extend(charlabels)
+
+print_percentage(100, "Processing train image "+ str(len(X_train))+" :")
+print("")
+print(str(100-(z*100/len(X_train)))+"% of the data in train batch correctly extracted.")
+
+
+
+
+
+
+# In[ ]:
+
+print("Character splitted train batch lenghts:")
+print("X_train_chars size: "+str(len(X_train_chars)))
+print("Y_train_chars size: "+str(len(Y_train_chars)))
+
+
+# In[ ]:
+
+#X_test_chars = []
+#Y_test_chars = []
+Test_without_inconsistencies = []
+z = 0
+for i in range(0, len(X_train)):
+    print_percentage(i*100/len(X_train), "Processing test image "+ str(i)+" :")
+    characters, charlabels= get_characters(X_train[i], Y_train[i])
+    if (len(characters) != len(charlabels) or len(characters) == 0 or len(charlabels) == 0):
+        if (enable_error_output):
+            print("[Warning] Input number "+str(i)+" inconsistent! Skipping this one...")
+        z += 1
+    else:
+#        X_test_chars.extend(characters)
+#        Y_test_chars.extend(charlabels)
+        Test_without_inconsistencies.append(i)
+
+print_percentage(100, "Processing train image "+ str(len(X_train))+" :")
+print("")
+print(str(100-(z*100/len(X_train)))+"% of the data in test batch correctly extracted.")
+
+#
+
+
+# In[ ]:
+
+#print("Character splitted test batch lenghts:")
+#print("X_test_chars size: "+str(len(X_test_chars)))
+#print("Y_test_chars size: "+str(len(Y_test_chars)))
+
+
+# ### Calculate the Histogram of Oriented Gradients
+# 
+# We calculate the Histogram of Oriented Gradients for the MLP_HOG classifier.
+
+# In[ ]:
+
+fd_train = np.zeros((len(X_train_chars),392))
+for i in range(0,len(X_train_chars)):
+    print_percentage(i*100/len(X_train_chars), "Processing train image "+ str(i)+" :")
+    fd_train[i], hog_image = hog(X_train_chars[i].reshape(28,28), orientations=8, pixels_per_cell=(4, 4), cells_per_block=(1, 1), visualise = True) 
+
+print_percentage(100, "Processing train image "+ str(len(X_train_chars))+" :")
+
+print("")
+#fd_test = np.zeros((len(X_test_chars),392))
+#for i in range(0,len(X_test_chars)):
+#    print_percentage(i*100/len(X_test_chars), "Processing test image "+ str(i)+" :")
+#    fd_test[i], hog_image = hog(X_test_chars[i].reshape(28,28), orientations=8, pixels_per_cell=(4, 4), cells_per_block=(1, 1), visualise = True) 
+#    
+#print_percentage(100, "Processing train image "+ str(len(X_test_chars))+" :")
+#print("")
+#print("Finished!")
+
+
+# In[ ]:
+
+# We also define a function in case we need to transform something later
+def HOG_transform(chars):
+    fd_hog = np.zeros((len(chars),392))
+    for i in range(0, len(chars)):
+        fd_hog[i], hog_image = hog(chars[i].reshape(28,28), orientations=8, pixels_per_cell=(4, 4), cells_per_block=(1, 1), visualise = True)
+    return fd_hog
+
+# This function is for visualizing the HOG
+def get_HOG_image(char):
+    fd_hog = np.zeros((392))
+    fd_hog, hog_image = hog(char.reshape(28,28), orientations=8, pixels_per_cell=(4, 4), cells_per_block=(1, 1), visualise = True)
+    return hog_image
+
+
+# We can see how a hog transformed image looks:
+
+# In[ ]:
+
 
