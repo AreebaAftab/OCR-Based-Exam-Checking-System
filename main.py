@@ -226,4 +226,46 @@ def make_objective():
 		# cur.execute("UPDATE question SET paper_id=%s WHERE paper_name=%s AND userid=%s",(pid,pname,uid))
 		# conn.commit()
 		return redirect(url_for('mcq_world',_anchor='mcq_marks'))
-    
+    elif  mcqpreviewbtn=='previewclick':
+		mpaper = request.form.get('mcq_paper')
+		mcqpaper = request.form.get('mcq_paper')+'mcq'
+		mcqtmarks = request.form.get('mcq_tmarks')
+		mcqques = request.form.get('mcq_ques')
+		mcqmarks = request.form.get('mcq_marks')
+		writefile=open('mcq.txt','a')
+		paper="Subject: "+mpaper+"\r\n"
+		totalmarks="Total Marks: "+mcqtmarks+"\r\n"
+		session.pop('mcou',None)
+
+		writefile.write(paper)
+		writefile.write(totalmarks)
+		writefile.close()
+		# if mcqfinish_btn=="false":
+		# 	print("mcqfinishbtn is ",mcqfinish_btn)
+		# 	conn=psycopg2.connect("dbname=checker user=postgres password=areeba host=localhost")
+		# 	cur=conn.cursor()
+		# 	cur.execute("SELECT userid from userinfo where name=%s",(fullname,))
+		# 	rows=cur.fetchall()
+		# 	uid=rows[0][0]
+		# 	# cur.execute("INSERT INTO  paper (paper_name,userid) VALUES(%s,%s)",(mcqpaper,uid))
+		# 	# conn.commit()
+		# 	cur.execute("SELECT paper_id,paper_name from paper where paper_name=%s AND userid=%s",(mcqpaper,uid))
+		# 	rows=cur.fetchall()
+		# 	pid=rows[0][0]
+		# 	print("paper_id: ",pid)
+		# 	pname=rows[0][1]
+		# 	print("paer_name: ",pname)
+		# 	session['mcou'] = session.get('mcou',0) 
+		# 	# cur.execute("UPDATE question SET paper_id=%s WHERE paper_name=%s AND userid=%s",(pid,pname,uid))
+		# 	# conn.commit()
+		# 	# cur.execute("INSERT INTO  question (paper_id,q_id,userid) VALUES(%s,%s,%s)",(pid,session['mcou'],uid))
+		# 	# conn.commit()
+		# 	# cur.execute("UPDATE question SET paper_name=%s,total_marks=%s,q_name=%s,marks_of_q=1 WHERE userid=%s AND paper_id=%s AND q_id=%s",(mcqpaper,mcqtmarks,mcqques,uid,pid,session['mcou']))
+		# 	# conn.commit()
+		# 	# print("finish is",mcqfinish_btn)
+		# 	session['mcou'] = session.get('mcou',0) 
+
+
+		# session['mcou'] = session.get('mcou',0) 
+		return redirect(url_for('mcqpdf'))
+		# return render_template("make.html",username = session['username'])
