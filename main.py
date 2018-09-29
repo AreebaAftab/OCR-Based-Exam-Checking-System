@@ -1634,7 +1634,22 @@ def th_view():
 
 	# return("helloworld "+paper+"rollnum "+(stdrollnum)+"studentpath "+stdpath)
 	
-	
+@app.route('/about')
+def about():
+	return "this is about page"
+# @app.route('/about/<webname>')
+# def profile(webname):
+# 	return "this is %s" %webname
+# @app.route('/about/<int:id>')
+# def post_show(id):
+# 	return "MY id id %s" %id
+# @app.route('/profile/<name>')
+# def profile_name(name):
+# 	return render_template("profile.html",name=name)
+
+
+if __name__=="__main__":
+	app.run(debug=False)	
 	
 
 
