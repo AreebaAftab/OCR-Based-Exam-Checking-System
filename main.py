@@ -432,7 +432,15 @@ def make_descriptive():
 		# writefile.close()
 
 		s1="Q"+str(session['tcou'])+": "+thques+"   "+"("+thmarks+"Marks)\r\n"
-		 
+		appendfile=open('theory.txt','a')
+		appendfile.write(s1)
+		appendfile.close()
+		print("inserted succesfully in question")
+		return redirect(url_for('theory_world',_anchor='th_tmarks'))
+
+	elif thfinishbtn=='thfinishclick':
+		session['tcou']+=1
+        
     
             
 
