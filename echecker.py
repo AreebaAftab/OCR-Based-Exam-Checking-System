@@ -623,4 +623,213 @@ def get_HOG_image(char):
 
 # In[ ]:
 
+selection = 2
+
+
+hog_image = get_HOG_image(X_train_chars[selection])
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=True)
+
+ax1.axis('off')
+ax1.imshow(X_train_chars[selection].reshape(28,28), cmap=plt.cm.gray)
+ax1.set_title('Input image')
+ax1.set_adjustable('box-forced')
+
+# Rescale histogram for better display
+hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 0.02))
+
+ax2.axis('off')
+ax2.imshow(hog_image_rescaled, cmap=plt.cm.gray)
+ax2.set_title('Histogram of Oriented Gradients')
+ax1.set_adjustable('box-forced')
+plt.show()
+
+
+# ### Transform the data to extract Principal Component Analysis features
+# 
+# We transform the data to extract Principal Component Analysis features for the MLP_PCA classifier.
+
+# In[ ]:
+
+# Standardising the values
+Scaler = StandardScaler().fit(X_train_chars)
+X_pca_train = Scaler.transform(X_train_chars)
+# Call the PCA method with 100 components. 
+pca = PCA(n_components=100)
+pca.fit(X_pca_train)
+P_train = pca.transform(X_pca_train)
+
+# Standardising the values
+X_pca_test = Scaler.transform(X_train_chars)
+
+# Call the PCA method with 100 components. 
+P_test = pca.transform(X_pca_test)
+
+
+# In[ ]:
+
+# We also define a function in case we need to transform something later
+def PCA_transform(chars):
+    # Standardising the values
+    X_pca = Scaler.transform(chars)
+
+    # Call the PCA method with 100 components. 
+    P = pca.transform(X_pca)
+    return P
+
+
+# We can see how the PCA looks like (only 2 PCA components):
+
+# In[ ]:
+
+print_limit = 1000
+Target = Y_train_chars[:print_limit]
+Target_colors = Y_train_chars[:print_limit]
+for i in range(0, len(Target_colors)):
+    Target_colors[i] = ord(Target_colors[i])
+Characters = go.Scatter(
+    x = P_train[:print_limit,0],
+    y = P_train[:print_limit,1],
+    name = Target,
+    hoveron = Target,
+    mode = 'markers',
+    text = Target,
+    showlegend = True,
+    marker = dict(
+        size = 8,
+        color = Target_colors,
+        colorscale ='Jet',
+        showscale = False,
+        line = dict(
+            width = 2,
+            color = 'rgb(255, 255, 255)'
+        ),
+        opacity = 0.8
+    )
+)
+data = [Characters]
+
+layout = go.Layout(
+    title= 'Principal Component Analysis (PCA)',
+    hovermode= 'closest',
+    xaxis= dict(
+         title= 'First Principal Component',
+        ticklen= 5,
+        zeroline= False,
+        gridwidth= 2,
+    ),
+    yaxis=dict(
+        title= 'Second Principal Component',
+        ticklen= 5,
+        gridwidth= 2,
+    ),
+    showlegend= True
+)
+
+
+fig = dict(data=data, layout=layout)
+py.iplot(fig, filename='styled-scatter')
+
+
+# # 6. Training
+
+# ### Training/loading classifiers
+# 
+# We feed the train characters and train character labels to each classifier or load the already trained classifiers from files (depending on the selected option):
+
+# In[ ]:
+
+if (not load_classifiers):
+    rbm_mlp_classifier.fit(X_train_chars[:], Y_train_chars)
+else:
+    rbm = joblib.load('RBM.pkl')
+    mlp = joblib.load('MLP_withRBMfeatures.pkl')
+    rbm_mlp_classifier = joblib.load('RBM_MLP_classifier.pkl')
+
+
+# In[ ]:
+
+# We can define if we want to plot the components extracted by the RBM
+plot_rbm_features = True
+
+if (plot_rbm_features):
+    plt.figure(figsize=(28, 28))
+    for i, comp in enumerate(rbm.components_):
+        plt.subplot(30, 10, i+1)
+        plt.imshow(comp.reshape((28, 28)), cmap=plt.cm.gray_r, interpolation='nearest')
+        plt.xticks(())
+        plt.yticks(())
+    plt.suptitle('300 components extracted by the RBM', fontsize=16)
+    plt.subplots_adjust(0.08, 0.02, 0.92, 0.85, 0.08, 0.23)
+
+    plt.show()
+
+
+# In[ ]:
+
+if (not load_classifiers):
+    mlp_classifier_HOG.fit(fd_train,Y_train_chars)
+else:
+    mlp_classifier_HOG = joblib.load('MLP_HOG.pkl')
+
+
+# In[ ]:
+
+if (not load_classifiers):
+    mlp_classifier_PCA.fit(P_train,Y_train_chars)
+else:
+    mlp_classifier_PCA = joblib.load('MLP_PCA.pkl')
+
+
+# In[ ]:
+
+if (not load_classifiers):
+    mlp_classifier.fit(X_train_chars, Y_train_chars)
+else:
+    mlp_classifier = joblib.load('MLP.pkl')
+
+
+# ### Saving the classifiers
+# 
+# If enabled, this will save the trained models to files.
+
+# In[ ]:
+
+# Save the classifiers if enabled:
+if (save_classifiers):
+    joblib.dump(rbm, 'RBM.pkl')
+    joblib.dump(mlp, 'MLP_withRBMfeatures.pkl')
+    joblib.dump(rbm_mlp_classifier, 'RBM_MLP_classifier.pkl')
+    joblib.dump(mlp_classifier_HOG, 'MLP_HOG.pkl')
+    joblib.dump(mlp_classifier_PCA, 'MLP_PCA.pkl')
+    joblib.dump(mlp_classifier, 'MLP.pkl')
+
+
+# # 7. Testing the results
+
+# ### Functions for testing results later
+# 
+# predict_full_name given a full name image and a classifier divides the image into characters and asks the classifier to predict it, afterwards chains the predictions of each characters into a full string.
+
+# In[ ]:
+
+# transform should be 'hog' for MLP_HOG classifier and 'pca' for MLP_PCA classifier, otherwise None
+def predict_full_name(name, classifier, transform=None):
+    characters= get_characters_img_only(name)
+    if (transform == 'hog'):
+        prediction = classifier.predict(HOG_transform(characters))
+    elif (transform == 'pca'):
+        prediction = classifier.predict(PCA_transform(characters))
+    else:
+        prediction = classifier.predict(characters)
+    strg = ''
+    for i in range(0, len(prediction)):
+        strg = strg+prediction[i]
+    return strg
+
+
+# predict_full_names gets the prediction for each consistent test data and returns the correct ratio and correlation ratio.
+
+# In[ ]:
+
+# transform should be 'hog' for MLP_HOG classifier and 'pca' for MLP_PCA classifier, otherwise None
 
