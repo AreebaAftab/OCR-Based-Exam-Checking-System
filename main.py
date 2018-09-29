@@ -422,7 +422,17 @@ def make_descriptive():
 		cur.execute("SELECT paper_id from paper where paper_name=%s AND userid=%s",(thpaper,uid))
 		rows=cur.fetchall()
 		pid=rows[0][0]
-        
+       cur.execute("INSERT INTO  question (paper_id,q_id,userid) VALUES(%s,%s,%s)",(pid,session['tcou'],uid))
+		conn.commit()
+		cur.execute("UPDATE question SET paper_name=%s,total_marks=%s,q_name=%s,marks_of_q=%s WHERE userid=%s AND paper_id=%s AND q_id=%s",(thpaper,thtmarks,thques,thmarks,uid,pid,session['tcou']))
+		conn.commit()
+		# writefile=open('mcq.txt','w')
+		# paper="Subject: "+mpaper+"\r\n"
+		# writefile.write(paper)
+		# writefile.close()
+
+		s1="Q"+str(session['tcou'])+": "+thques+"   "+"("+thmarks+"Marks)\r\n"
+		 
     
             
 
