@@ -415,7 +415,14 @@ def make_descriptive():
 		print("rows in paper is : ",len(rows))
 	
 		if(lenrows==0):
-            
+            conn=psycopg2.connect("dbname=checker user=postgres password=areeba host=localhost")
+			cur=conn.cursor()
+			cur.execute("INSERT INTO  paper (paper_name,userid) VALUES(%s,%s)",(thpaper,uid))
+			conn.commit()
+		cur.execute("SELECT paper_id from paper where paper_name=%s AND userid=%s",(thpaper,uid))
+		rows=cur.fetchall()
+		pid=rows[0][0]
+        
     
             
 
