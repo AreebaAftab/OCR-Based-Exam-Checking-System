@@ -269,3 +269,107 @@ def make_objective():
 		# session['mcou'] = session.get('mcou',0) 
 		return redirect(url_for('mcqpdf'))
 		# return render_template("make.html",username = session['username'])
+        @app.route('/mcqpdf')
+def mcqpdf():
+	pdf=FPDF()
+	pdf.add_page()
+	pdf.set_font('Arial','B',14)
+	pdf.cell(100, 7, """          								                XYZ School Of Education And Excellence""",0,1 )
+	pdf.cell(100, 7, """          								 
+																   EXAMINATIONS:2017-2018""",0,1 )
+	pdf.cell(100, 7, """           								 
+																          BATCH:2014-2015""",0,1 )
+	filepath = 'mcq.txt'  
+	with open('mcq.txt') as f:
+		for i, l in enumerate(f):
+			pass
+		rows= i  
+	with open(filepath) as fp:
+		line = fp.readline()
+		cnt = 1
+		while line:
+			if cnt==rows-2:
+				pdf.set_font('Arial','B',14)
+				pdf.cell(100, 7, "																          		   				            "+line.strip() + "                         \r\n",0,1 )
+			line = fp.readline()
+			cnt += 1
+	with open('mcq.txt') as f:
+		for i, l in enumerate(f):
+			pass
+		rows= i  
+	with open(filepath) as fp:
+		line = fp.readline()
+		cnt = 1
+		while line:
+			if cnt==rows:
+				pdf.set_font('Arial','B',14)
+				pdf.cell(101, 7, "																          		   				                                                              "+line.strip() + "                         \r\n",0,1 )
+			line = fp.readline()
+			cnt += 1
+	pdf.cell(100, 7, "",0,1 )
+	pdf.cell(100, 7, "Time:30mins\n",0,1 )
+	pdf.cell(100, 7, "",0,1 )
+	pdf.set_font('Arial','', 14)
+	pdf.cell(100, 7, "Instruction:",0,1 )
+	pdf.cell(100, 7, "			Read Paper Carefully",0,1 )
+	pdf.cell(100, 7, "",0,1 )
+	pdf.cell(100, 7, "",0,1 )
+	pdf.set_font('Arial','', 14)
+	filepath = 'mcq.txt'
+	with open('mcq.txt') as f:
+		for i, l in enumerate(f):
+			pass
+		rows= i 
+		secondlastrow=i-2 
+	with open(filepath) as fp:
+		line = fp.readline()
+		cnt = 1
+		while line:
+			# if cnt!=rows:
+			# 	pdf.cell(120, 7, "\r\n"+line.strip() + "                         \r\n",0,1 )
+
+			# if cnt!=rows and cnt%2!=0:
+			# 	pdf.cell(120, 7, "\r\n"+"Q"+str(cnt)+": "+line.strip() + "                         \r\n",0,1 )
+			# 	cnt += 1
+			# elif cnt!=rows and cnt%2==0:
+			# 	pdf.cell(120, 7, "\r\n"+line.strip() + "                         \r\n",0,1 )
+			# 	cnt += 1
+			# line = fp.readline()
+
+			# cnt += 1
+			if cnt!=rows:
+				if cnt!=secondlastrow:
+					pdf.cell(120, 7, "\r\n"+line.strip() + "                         \r\n",0,1 )
+				
+			line = fp.readline()
+
+			cnt += 1
+    if (os.path.isfile('templates/pdfdemo.pdf')):
+		os.remove('templates/pdfdemo.pdf')
+	if (os.path.isfile('mcq.txt')):
+		os.remove('mcq.txt')
+	
+	# print("rows is :"+str(rows))
+	# with open("mcq.txt", "r") as lst:
+	# 	for i in range(0,rows):
+	# 		item=""
+	# 		# item[0]=lst[.read().splitlines()]
+	# 		item=lst[0]
+	# 		print("Item is "+item)
+	# 		pdf.cell(120, 7, "\r\n"+str(lst.read().splitlines()) + "                         \r\n",0,1 )
+
+		# print(lst.read().splitlines())
+	# file = open("mcq.txt",'r')
+	# for i in range(max(0, rows-100),rows,1):
+	# 	pdf.cell(120, 7, "\r\n"+file[i] + "                         \r\n",0,1 )
+
+    # for i = max(0, count(file)-100); i < count(file); i+=1:
+    # 	pdf.cell(120, 7, "\r\n".file[i] . "                         \r\n",0,1 )
+
+	pdf.output('templates/pdfdemo.pdf','F')
+	return send_from_directory(directory='templates',
+                               filename='pdfdemo.pdf',
+                               mimetype='application/pdf')
+	# return render_template("pdfdemo.pdf")
+            
+
