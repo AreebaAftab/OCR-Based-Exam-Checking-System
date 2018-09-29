@@ -596,6 +596,227 @@ def uploadstudent():
 		file.save(stdmcqdestination)
 	return render_template('check2.html',mcqpaper=mcqpaper,mstdfilename=mstdfilename,username = fullname)
 
+@app.route("/uploadteacher", methods=["POST"])
+def uploadteacher():
+	global mteafilename
+	global teamcqdestination
+	target = "C:/Users/Areeba Aftab/Desktop/checker/flask"
+   #target = os.path.join(APP_ROOT,'/teachermcq')
+ 
+	print(target)
+	if not os.path.isdir(target):
+		os.mkdir(target)
+
+	for file in request.files.getlist("mcqtea_file"):
+		print(file)
+
+		mteafilename = file.filename
+		teamcqdestination = "/".join([target, mteafilename])
+		print("Accept incoming file:", mteafilename)
+		print(teamcqdestination)
+		file.save(teamcqdestination)
+	return render_template('check2.html',mcqpaper=mcqpaper,mstdfilename=mstdfilename,mteafilename=mteafilename,username = fullname)
+@app.route("/omr")
+def omr():
+	print("student is "+stdmcqdestination)
+	print("teacher is "+teamcqdestination)
+	print("Paper is "+mcqpaper)
+	print("full name is "+fullname)
+	global rollno
+	filepath=(os.path.splitext(mstdfilename)[0])
+	rollno=os.path.basename(filepath)
+	print("Rollno is",rollno)
+	a=stdmcqdestination
+	b=teamcqdestination
+	image1 = cv2.imread(a)
+	gray1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
+	blurred1 = cv2.GaussianBlur(gray1, (5, 5), 0)
+	edged1 = cv2.Canny(blurred1, 75, 200)
+	image2 = cv2.imread(b)
+	gray2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
+	blurred2 = cv2.GaussianBlur(gray2, (5, 5), 0)
+	edged2 = cv2.Canny(blurred2, 75, 200)
+    		# find contours in the edge map, then initialize
+    		# the contour that corresponds to the document
+	cnts1 = cv2.findContours(edged1.copy(), cv2.RETR_EXTERNAL,
+    			 cv2.CHAIN_APPROX_SIMPLE)
+	cnts1 = cnts1[0] if imutils.is_cv2() else cnts1[1]
+	docCnt1 = None
+	cnts2 = cv2.findContours(edged2.copy(), cv2.RETR_EXTERNAL,
+    			cv2.CHAIN_APPROX_SIMPLE)
+	cnts2 = cnts2[0] if imutils.is_cv2() else cnts2[1]
+	docCnt2 = None
+    		# ensure that at least one contour was found
+	if len(cnts1) > 0:
+        
+    			# sort the contours according to their size in
+    			# descending order
+		cnts1 = sorted(cnts1, key=cv2.contourArea, reverse=True)
+	 
+		# loop over the sorted contours
+		for c1 in cnts1:
+			# approximate the contour
+			peri1 = cv2.arcLength(c1, True)
+			approx1 = cv2.approxPolyDP(c1, 0.02 * peri1, True)
+	 
+			# if our approximated contour has four points,
+			# then we can assume we have found the paper
+			if len(approx1) == 4:
+				docCnt1 = approx1
+				break
+	if len(cnts2) > 0:
+    			# sort the contours according to their size in
+    			# descending order
+		cnts2 = sorted(cnts2, key=cv2.contourArea, reverse=True)
+	 
+		# loop over the sorted contours
+		for c2 in cnts2:
+			# approximate the contour
+			peri2 = cv2.arcLength(c2, True)
+			approx2 = cv2.approxPolyDP(c2, 0.02 * peri2, True)
+	 
+			# if our approximated contour has four points,
+			# then we can assume we have found the paper
+			if len(approx2) == 4:
+				docCnt2 = approx2
+				break
+    		# apply a four point perspective transform to both the
+    		# original image and grayscale image to obtain a top-down
+    		# birds eye view of the paper
+	paper1 = four_point_transform(image1, docCnt1.reshape(4, 2))
+	warped1 = four_point_transform(gray1, docCnt1.reshape(4, 2))
+	paper2 = four_point_transform(image2, docCnt2.reshape(4, 2))
+	warped2 = four_point_transform(gray2, docCnt2.reshape(4, 2))
+    		# apply Otsu's thresholding method to binarize the warped
+    		# piece of paper
+	thresh1 = cv2.threshold(warped1, 0, 255,
+    			cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+	thresh2 = cv2.threshold(warped2, 0, 255,
+    			cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+    		# find contours in the thresholded image, then initialize
+    		# the list of contours that correspond to questions
+	cnts1 = cv2.findContours(thresh1.copy(), cv2.RETR_EXTERNAL,
+    			cv2.CHAIN_APPROX_SIMPLE)
+	cnts1 = cnts1[0] if imutils.is_cv2() else cnts1[1]
+	questionCnts1 = []
+	cnts2 = cv2.findContours(thresh2.copy(), cv2.RETR_EXTERNAL,
+    			cv2.CHAIN_APPROX_SIMPLE)
+	cnts2 = cnts2[0] if imutils.is_cv2() else cnts2[1]
+	questionCnts2 = []
+    		# loop over the contours
+	for c1 in cnts1:
+    			# compute the bounding box of the contour, then use the
+    			# bounding box to derive the aspect ratio
+		(x1, y1, w1, h1) = cv2.boundingRect(c1)
+		ar1 = w1 / float(h1)
+	 
+		# in order to label the contour as a question, region
+		# should be sufficiently wide, sufficiently tall, and
+		# have an aspect ratio approximately equal to 1
+		if w1 >= 20 and h1 >= 20 and ar1 >= 0.9 and ar1 <= 1.1:
+			questionCnts1.append(c1)
+	for c2 in cnts2:
+    			# compute the bounding box of the contour, then use the
+    			# bounding box to derive the aspect ratio
+		(x2, y2, w2, h2) = cv2.boundingRect(c2)
+		ar2 = w2 / float(h2)
+	    # in order to label the contour as a question, region
+		# should be sufficiently wide, sufficiently tall, and
+		# have an aspect ratio approximately equal to 1
+		if w2 >= 20 and h2 >= 20 and ar2 >= 0.9 and ar2 <= 1.1:
+			questionCnts2.append(c2)
+    		# sort the question contours top-to-bottom, then initialize
+    		# the total number of correct answers
+	questionCnts1 = contours.sort_contours(questionCnts1,
+    			method="top-to-bottom")[0]
+	correct = 0
+	questionCnts2 = contours.sort_contours(questionCnts2,
+    			method="top-to-bottom")[0]
+            # each question has 5 possible answers, to loop over the
+    		# question in batches of 5
+	for (q1, i1) in enumerate(np.arange(0, len(questionCnts1), 5)):
+    			# sort the contours for the current question from
+    			# left to right, then initialize the index of the
+    			# bubbled answer
+		cnts1 = contours.sort_contours(questionCnts1[i1:i1 + 5])[0]
+		bubbled1 = None
+		cnts2 = contours.sort_contours(questionCnts2[i1:i1 + 5])[0]
+		bubbled2 = None
+	# loop over the sorted contours
+		for (j1, c1) in enumerate(cnts1):
+			for(j2,c2) in enumerate(cnts2):
+				mask1 = np.zeros(thresh1.shape, dtype="uint8")
+				cv2.drawContours(mask1, [c1], -1, 255, -1)
+				mask2 = np.zeros(thresh2.shape, dtype="uint8")
+				cv2.drawContours(mask2, [c2], -1, 255, -1)
+	           # apply the mask to the thresholded image, then
+	#    		# count the number of non-zero pixels in the
+	#    		# bubble area
+				mask1 = cv2.bitwise_and(thresh1, thresh1, mask=mask1)
+				total1 = cv2.countNonZero(mask1)
+				mask2 = cv2.bitwise_and(thresh2, thresh2, mask=mask2)
+				total2 = cv2.countNonZero(mask2)
+	            # if the current total has a larger number of total
+	#    		# non-zero pixels, then we are examining the currently
+	#    		# bubbled-in answer
+				if bubbled1 is None or total1 > bubbled1[0]:
+					bubbled1 = (total1, j1)
+				if bubbled2 is None or total2 > bubbled2[0]:
+					bubbled2 = (total2, j2)
+	    # initialize the contour color and the index of the
+	    	# *correct* answer
+		color = (0, 0, 255)
+		k =bubbled2[1]
+	    # check to see if the bubbled answer is correct
+		if k == bubbled1[1]:
+			color = (0, 255, 0)
+			correct += 1
+	# draw the outline of the corr2ect answer on the test
+		cv2.drawContours(paper1, [cnts1[k]], -1, color, 3)
+    		
+	score = (correct / 5.0) * 100
+	print("[INFO] score: {:.2f}%".format(score))
+	cv2.putText(paper1, "{:.2f}%".format(score), (10, 30),
+    			cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+	cv2.imshow("Teacher", image2)
+	cv2.imshow("Exam", paper1)
+	cv2.waitKey(0)
+	conn=psycopg2.connect("dbname=checker user=postgres password=areeba host=localhost")
+	cur=conn.cursor()
+	# cur.execute("INSERT INTO std (paper_id,q_id,marks_of_ques,total_marks) SELECT paper_id,q_id,marks_of_q,total_marks FROM question q WHERE q.paper_name = %s",(mcqpaper,))
+	
+	# cur.execute("INSERT INTO std (paper_id,q_id,marks_of_ques,total_marks) SELECT paper_id,q_id,marks_of_q,total_marks FROM question q WHERE q.paper_name = %s",(mpaper,))
+	# conn.commit()
+	session['student'] = session.get('student',0)
+
+	session['student']+=1
+
+	cur.execute("SELECT userid from userinfo where name=%s",(fullname,))
+	rows=cur.fetchall()
+	uid=rows[0]
+	print(uid)
+	cur.execute("SELECT paper_id from paper where paper_name=%s AND userid=%s",(mpaper,uid))
+	rows=cur.fetchall()
+	pid=rows[0]
+	cur.execute("INSERT INTO stdinfo(std_rollnum) VALUES(%s)",(rollno,))
+	conn.commit()
+	cur.execute("SELECT std_id FROM stdinfo WHERE std_rollnum = %s",(rollno,))
+	rows=cur.fetchall()
+	stdid=rows[0]
+	# cur.execute("Select count(*) from(SELECT paper_id,q_id,marks_of_q,total_marks FROM question q WHERE q.paper_name = %s AND q.paper_name=%s)stdnew",(mcqpaper,mpaper)) 
+	# quesrow=cur.fetchall()
+	# quesrow_len=quesrow[0][0]
+	# print(quesrow_len)
+	# for i in range(quesrow_len):
+	# 	cur.execute("INSERT INTO std(std_id,std_rollnum) VALUES(%s,%s)",(stdid,rollno,))
+	# 	conn.commit()
+	cur.execute("INSERT INTO std (paper_id,q_id,marks_of_ques,total_marks,std_id,std_rollnum,obt_marks_of_ques) SELECT paper_id,q_id,marks_of_q,total_marks,%s,%s,%s FROM question q WHERE q.paper_name = %s ",(stdid,rollno,correct,mpaper,))
+	conn.commit()
+	# cur.execute("UPDATE std SET paper_id= (Select paper_id from question WHERE paper_name = %s,(mcqpaper,)),q_id= (Select q_id from question WHERE paper_name = %s,(mcqpaper,)) ,marks_of_ques= (Select marks_of_q from question WHERE paper_name = %s,(mcqpaper,)),total_marks=(Select total_marks from question WHERE paper_name = %s,(mcqpaper,)) WHERE std_rollnum=%s ", (rollno, pid))
+	# conn.commit()
+	
+	return redirect(url_for('check'))
+
     
     
             
