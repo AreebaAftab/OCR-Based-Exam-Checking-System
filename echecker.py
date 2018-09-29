@@ -194,3 +194,42 @@ def getcrop1(n):
         crop = delborders(crop)
     crop = cv2.resize(crop, dsize=(315,24), interpolation=cv2.INTER_CUBIC)
     return crop, True
+def gen_dataset(n=df2.shape[0]):
+    data = []
+    labels = []
+    for i in range(1, n):
+        crop, success = getcrop(i)
+        if (success):
+            data.append(crop)
+            labels.append(df2[2][i])
+            print(labels)
+        else:
+            if (enable_error_output):
+                print("[WARNING] Template matching has failed for image: "+str(i))
+        print_percentage((i*100/(n-1)), "Fetched "+str(i)+" images:")
+    
+    print_percentage(100, "Fetched "+str(n-1)+" images:")
+    print("")
+    print("Finished!")
+    return data, labels
+
+def gen_dataset1(n=df3.shape[0]):
+    data1 = []
+    #labels = []
+    for i in range(1, n):
+        crop1, success1 = getcrop1(i)
+        if (success1):
+            data1.append(crop1)
+            #labels.append(df2[2][i])
+            #print(labels)
+        else:
+            if (enable_error_output):
+                print("[WARNING] Template matching has failed for image: "+str(i))
+        print_percentage((i*100/(n-1)), "Fetched "+str(i)+" images:")
+    
+    print_percentage(100, "Fetched "+str(n-1)+" images:")
+    print("")
+    print("Finished!")
+    return data1
+
+ 
