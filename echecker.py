@@ -832,4 +832,142 @@ def predict_full_name(name, classifier, transform=None):
 # In[ ]:
 
 # transform should be 'hog' for MLP_HOG classifier and 'pca' for MLP_PCA classifier, otherwise None
+def predict_full_names(classifier, transform=None):
+    correlation=0.0
+    correct = 0
+    for i in range(0,len(Test_without_inconsistencies)):
+        predicted_name = predict_full_name(X_train[Test_without_inconsistencies[i]], classifier, transform)
+        if (predicted_name == Y_train[Test_without_inconsistencies[i]]):
+            correct += 1
+        correlation += similar(predicted_name, Y_train[Test_without_inconsistencies[i]])
+        print_percentage(i*100/len(X_train),"Making predictions "+str(i)+"/"+str(len(X_train))+":")
+    print_percentage(100,"Making predictions "+str(len(X_train))+"/"+str(len(X_train))+":")
+    return (correct/len(Test_without_inconsistencies)), (correlation/len(Test_without_inconsistencies))
+
+
+# similar gives a correlation ratio between two strings.
+
+# In[ ]:
+
+def similar(a,b):
+        return SequenceMatcher(None,a,b).ratio()
+
+
+# ### Testing character recognintion
+# 
+# We will test now individual character recognition scores for each classifier using the test batch.
+
+# In[ ]:
+
+rbm_mlp_prediction = rbm_mlp_classifier.predict(X_train_chars)
+mlp_prediction_HOG = mlp_classifier_HOG.predict(fd_train)
+#mlp_prediction_PCA = mlp_classifier_PCA.predict(P_test)
+mlp_prediction = mlp_classifier.predict(X_train_chars)
+
+
+# In[ ]:
+
+print("MLP classification using RBM features:\n%s\n" % (metrics.classification_report(Y_train_chars, rbm_mlp_prediction)))
+print("HOG + MLP classification:\n%s\n" % (metrics.classification_report(Y_train_chars, mlp_prediction_HOG)))
+#print("PCA + MLP classification:\n%s\n" % (metrics.classification_report(Y_test_chars, mlp_prediction_PCA)))
+print("MLP only classification:\n%s\n" % (metrics.classification_report(Y_train_chars, mlp_prediction)))
+
+if (save_results):
+    result_output_file.write("MLP classification using RBM features:\n%s\n" % (metrics.classification_report(Y_train_chars, rbm_mlp_prediction)))
+    result_output_file.write("\nHOG + MLP classification:\n%s\n" % (metrics.classification_report(Y_train_chars, mlp_prediction_HOG)))
+   # result_output_file.write("\nPCA + MLP classification:\n%s\n" % (metrics.classification_report(Y_test_chars, mlp_prediction_PCA)))
+    result_output_file.write("\nMLP only classification:\n%s\n" % (metrics.classification_report(Y_train_chars, mlp_prediction)))
+
+
+# ### Testing full name recognition
+# 
+# We will test now full name recognition scores using the consistent test batch.
+
+# In[ ]:
+
+correct_rbm_mlp, corr_rbm_mlp = predict_full_names(rbm_mlp_classifier)
+correct_mlp_HOG, corr_mlp_HOG = predict_full_names(mlp_classifier_HOG, 'hog')
+#correct_mlp_PCA, corr_mlp_PCA = predict_full_names(mlp_classifier_PCA, 'pca')
+correct_mlp, corr_mlp = predict_full_names(mlp_classifier)
+
+
+# In[ ]:
+
+print("Full name test results: ")
+print("========================================================================")
+print("| Classifier            | Correct percentage      | Correlation ratio  |")
+print("========================================================================")
+print("| MLP with RBM features | "+str(correct_rbm_mlp)+"     | "+str(corr_rbm_mlp)+" |")
+print("========================================================================")
+print("| MLP with HOG features | "+str(correct_mlp_HOG)+"     | "+str(corr_mlp_HOG)+" |")
+print("========================================================================")
+#print("| MLP with PCA features | "+str(correct_mlp_PCA)+"     | "+str(corr_mlp_PCA)+" |")
+print("========================================================================")
+print("| MLP only              | "+str(correct_mlp)+"     | "+str(corr_mlp)+" |")
+print("========================================================================")
+
+if (save_results):
+    result_output_file.write("\n\nFull name test results: ")
+    result_output_file.write("\n========================================================================")
+    result_output_file.write("\n| Classifier            | Correct percentage      | Correlation ratio  |")
+    result_output_file.write("\n========================================================================")
+    result_output_file.write("\n| MLP with RBM features | "+str(correct_rbm_mlp)+"     | "+str(corr_rbm_mlp)+" |")
+    result_output_file.write("\n========================================================================")
+    result_output_file.write("\n| MLP with HOG features | "+str(correct_mlp_HOG)+"     | "+str(corr_mlp_HOG)+" |")
+    result_output_file.write("\n========================================================================")
+   # result_output_file.write("\n| MLP with PCA features | "+str(correct_mlp_PCA)+"     | "+str(corr_mlp_PCA)+" |")
+    result_output_file.write("\n========================================================================")
+    result_output_file.write("\n| MLP only              | "+str(correct_mlp)+"     | "+str(corr_mlp)+" |")
+    result_output_file.write("\n========================================================================")
+
+
+# ### Visual testing
+# 
+# We can see some predictions visually here by adding indexes to the "indexes" list and for each test data selected in "indexes" we will see the predictions of each classifier.
+
+# In[ ]:
+
+#indexes = [8, 10, 12, 14, 16]
+#for ind in indexes:
+#    rbm_mlp_predict = predict_full_name(X_test[ind], rbm_mlp_classifier)
+#    mlp_hog_predict = predict_full_name(X_test[ind], mlp_classifier_HOG, 'hog')
+#    mlp_pca_predict = predict_full_name(X_test[ind], mlp_classifier_PCA, 'pca')
+#    mlp_predict = predict_full_name(X_test[ind], mlp_classifier)
+#    print("> Real label: "+Y_test[ind])
+#    print("> Image:")
+#    plt.imshow(X_test[ind], cmap='gray')
+#    plt.show()
+#    print("MLP with RBM features predicted: "+rbm_mlp_predict)
+#    print("MLP with HOG features predicted: "+mlp_hog_predict)
+#    print("MLP with PCA features predicted: "+mlp_pca_predict)
+#    print("MLP predicted: "+mlp_predict)
+#    print("")
+#    
+#    if (save_results):
+#        result_output_file.write("\n\n> Real label: "+Y_test[ind])
+#        result_output_file.write("\nMLP with RBM features predicted: "+rbm_mlp_predict)
+#        result_output_file.write("\nMLP with HOG features predicted: "+mlp_hog_predict)
+#        result_output_file.write("\nMLP with PCA features predicted: "+mlp_pca_predict)
+#        result_output_file.write("\nMLP predicted: "+mlp_predict)
+#        result_output_file.write("\n")
+indexes = [2]
+for ind in indexes:
+    rbm_mlp_predict = predict_full_name(X_test1[ind], rbm_mlp_classifier)
+    mlp_hog_predict = predict_full_name(X_test1[ind], mlp_classifier_HOG, 'hog')
+#    mlp_pca_predict = predict_full_name(X_test[ind], mlp_classifier_PCA, 'pca')
+    mlp_predict = predict_full_name(X_test1[ind], mlp_classifier)
+    #print("> Real label: "+Y_test[ind])
+    print("> Image:")
+    plt.imshow(X_test1[ind], cmap='gray')
+    plt.show()
+    print("MLP with RBM features predicted: "+rbm_mlp_predict)
+    print("MLP with HOG features predicted: "+mlp_hog_predict)
+#    print("MLP with PCA features predicted: "+mlp_pca_predict)
+    print("MLP predicted: "+mlp_predict)
+    print("")
+
+# In[ ]:
+
+if (save_results):
+    result_output_file.close()
 
