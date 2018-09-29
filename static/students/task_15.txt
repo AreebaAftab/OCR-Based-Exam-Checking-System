@@ -1,0 +1,93 @@
+flask:https://www.youtube.com/watch?v=t24ZOk06wa8&index=6&list=PL6gx4Cwl9DGDi9F_slcQK7knjtO8TUvUs
+db https://www.youtube.com/watch?v=nWO_VpI5wn8
+
+pgadmin:https://www.youtube.com/watch?v=e1MwsT5FJRQ
+https://docs.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-python-postgresql
+*************
+sessions:https://www.youtube.com/watch?v=WCpNvteLCDI
+connect to postgresql db(best) https://www.youtube.com/watch?v=_vqXqPVo68o
+insertion,update,select https://www.youtube.com/watch?v=AcWsMDa02K4
+insertion article:https://www.thoughtco.com/inserting-data-postgresql-database-2813610
+password:checkerpass
+port:5432
+
+
+anchot tag:https://stackoverflow.com/questions/31863582/automatically-scroll-to-a-div-when-flask-returns-rendered-template
+https://stackoverflow.com/questions/21583594/flask-redirect-url-with-anchor
+https://stackoverflow.com/questions/35843675/link-to-a-specific-location-in-a-flask-template
+
+************
+pdf
+file upload
+omr connection
+gensim2 connection
+select page
+css marking preview
+hashing of password
+share grade sheet
+mobile app
+payment
+
+
+*********
+21-feb
+*********
+1> sql converter
+2> gui set
+3> next btn
+4> finish btn
+5> filing
+************
+22-feb
+*********
+1>question no auto increment(done),txt to image convert
+2>mcq paper(done)
+3>file name extraction(done)
+
+********
+24feb
+django websites
+connect py wd html
+
+****************
+
+insert into notpad file: and update each line by line
+copy the notpad data into pdf on show preview
+
+2 march 2018
+gui of three pages
+database stuff of make page
+browse and path to text field
+cutting paths
+on make page connect ginsim and omr file
+
+student:folder
+teacher:filename
+
+
+
+
+computer mcq:
+The term Computer is derived from?(A)German (B)Latin (C)French (D)Arabic (E)None
+The basic operations performed by a computer are?(A)Arithmetic operation (B)Logical operation (C)Storage and relative (D)None (E)All the above
+WWW stands for?(A)World Wide Web (B)World Whole Web (C)Wide World Web (D)Web World Wide (E)None
+Which technology is used in compact disks?(A)Mechanical (B)Electrical (C)Electro Magnetic (D)Laser (E)None
+A light sensitive device that converts  printed text into digital form is?(A)Keyboard (B)Scanner (C)OMR (D).None (E)All above
+
+computer theory:
+what is computer?
+where are you taking the show?
+what is pc?
+***************************************
+science mcq:
+
+When white light is passed through a prism, it splits into how many colours?(A) 5 (B) 6 (C) 7 (D) 8 (E) None
+1 nanometer = ?(A) 10-3 meter (B) 10-6 meter (C) 10-2 meter (D) 10-12 meter (E) 10-9 meter
+Sound waves are?(A) Longitudinal waves (B) Electromagnetic waves (C) Transverse waves  (D) none of these (E) All of above
+X-rays were discovered by?(A)Bacquerel  (B) Thomson (C) Rutherford (D) Rontgen (E) None
+The fluid part of blood is?(A)platelets  (B) plasma (C) blood cells (D) hormones (E) None
+
+questions:
+What is the biggest planet in our solar system?
+What is the chemical symbol for the element oxygen?
+How many bones do sharks have in their bodies?
