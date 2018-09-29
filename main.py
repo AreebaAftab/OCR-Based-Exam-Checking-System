@@ -564,6 +564,38 @@ def theorypdf():
 	if (os.path.isfile('templates/theorypdf.pdf')):
 		os.remove('templates/theorypdf.pdf')
 	# return render_template("pdfdemo.pdf")
+@app.route("/uploadstudent", methods=["POST"])
+def uploadstudent():
+	global mcqpaper
+	global mpaper
+	global mstdfilename
+	global stdmcqdestination
+   
+	mcqpaper = request.form.get('mcq_paper')
+	mpaper = request.form.get('mcq_paper')+'mcq'
+    #target = os.path.join(APP_ROOT,'/studentmcq')
+ 
+	target ="C:/Users/Areeba Aftab/Desktop/checker/flask"
+
+	print(target)
+	if not os.path.isdir(target):
+		os.mkdir(target)
+   #for file in request.files.getlist("mcqstd_file"):
+
+	for file in request.files.getlist("mcqstd_file"):
+		print(file)
+
+		mstdfilename = "002.png"
+     		#mstdfilename = file.filename
+   
+		print(mstdfilename)
+      
+		stdmcqdestination = "/".join([target, mstdfilename])
+		print("Accept incoming file:", mstdfilename)
+		print(stdmcqdestination)
+		file.save(stdmcqdestination)
+	return render_template('check2.html',mcqpaper=mcqpaper,mstdfilename=mstdfilename,username = fullname)
+
     
     
             
