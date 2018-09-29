@@ -462,7 +462,33 @@ def make_descriptive():
 		cur.execute("UPDATE question SET paper_name=%s,total_marks=%s,q_name=%s,marks_of_q=%s WHERE userid=%s AND paper_id=%s AND q_id=%s",(thpaper,thtmarks,thques,thmarks,uid,pid,session['tcou']))
 		conn.commit()
 
+		s1="Q"+str(session['tcou'])+": "+thques+"   "+"("+thmarks+"Marks)\r\n"
+		appendfile=open('theory.txt','a')
+		appendfile.write(s1)
+		appendfile.close()
+		print("inserted succesfully in question")
+		session.pop('tcou',None)
+		session['tcou'] = session.get('tcou',0) 
+
+		return redirect(url_for('theory_world',_anchor='th_marks'))
+
+	elif  thpreviewbtn=='thpreviewclick':
+		thpaper = request.form.get('th_paper')
+		thtmarks = request.form.get('th_tmarks')
+		thques = request.form.get('th_ques')
+		thmarks = request.form.get('th_marks')
+		writefile=open('theory.txt','a')
+		paper="Subject: "+thpaper+"\r\n"
+		totalmarks="Total Marks: "+thtmarks+"\r\n"
+		session.pop('tcou',None)
+
+		writefile.write(paper)
+		writefile.write(totalmarks)
+		writefile.close()
 		 
+		return redirect(url_for('theorypdf'))
+			
+ 
     
             
 
