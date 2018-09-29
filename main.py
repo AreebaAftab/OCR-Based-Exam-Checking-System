@@ -1316,6 +1316,142 @@ def definition_file():
 
 
 	#student papers
+	lookup = "What is computer?"
+	lookup2= "What is the difference between Internet and Intranet?"
+	lookup3= "What is an operating system? Also give some Examples?"
+	inputdir = thstdtarget+"/"
+	AllWords = list()      #create new list
+	ResultList = list()   
+	filelist = os.listdir(inputdir)
+	for i in filelist:
+	    with open(inputdir + i, 'r') as myFile:
+	    	
+	        for num, line in enumerate(myFile, 0):
+	            if lookup in line:
+	                print('found at line:', num)
+	                a=num
+	                l=a+1
+	            if lookup2 in line:
+	                print('found at line:', num)
+	                b=num
+	                m=b+1
+	            if lookup3 in line:
+	                print('found at line:', num)
+	                d=num
+	        e=num+1      
+	        
+	        c= stdthdestination                 
+	        with open(c,'r') as myfile:
+	             lines=myfile.readlines()[a+1:b]
+	             lines = [''.join(a for a in s if a not in string.punctuation) for s in lines]
+	             q=[]
+	             AllWords = list()      #create new list
+	             ResultList = list()
+	             for line in lines:
+	                 line.rstrip()   #strip white space
+	                 words = line.split()    #split lines of words and make list
+	                 AllWords.extend(words)   #make the list from 4 lists to 1 list
+
+	             AllWords.sort()  #sort list
+
+	             for word in AllWords:   #for each word in line.split()
+	                   if word not in ResultList:    #if a word isn't in line.split            
+	                         ResultList.append(word)   #append it.
+	             #print(ResultList)
+	                 #query_doc = [w.lower() for w in word_tokenize(line) if w not in stop_words]
+	                 #print(query_doc)
+	             query_doc = [w.lower() for w in ResultList if w not in stop_words]
+	             query_doc_bow = dictionary1.doc2bow(query_doc)
+	            #print(query_doc_bow)
+	             query_doc_tf_idf = tf_idf1[query_doc_bow]
+	             #print(query_doc_tf_idf)
+	             #q= q+sims1[query_doc_tf_idf]
+	             a=sims1[query_doc_tf_idf]
+	             #print(sims1[query_doc_tf_idf])
+
+	                    #a= a.round()
+	             #print([a[i] for i, e in enumerate(a) if a[i] !=0])                     
+	             q=[a[i] for i, e in enumerate(a) if e != 0]  
+	             obtacc1=sum(q)
+	             print("obtacc1:",obtacc1)
+	             if obtacc1>acc1:
+	                 obtacc1=acc1    
+	             obtmarks1=(obtacc1/acc1)*marks1
+	             print("obtmarks1:",obtmarks1)
+	             
+	        c= stdthdestination                 
+	        with open(c,'r') as myfile:
+	            lines=myfile.readlines()[b+1:d]
+	            #print(lines)
+	            lines= [''.join(a for a in s if a not in string.punctuation) for s in lines]
+	            q=[]
+	            AllWords = list()      #create new list
+	            ResultList = list()
+	            for line in lines:
+	                line.rstrip()   #strip white space
+	                words = line.split()    #split lines of words and make list
+	                AllWords.extend(words)   #make the list from 4 lists to 1 list
+	    
+	            AllWords.sort()  #sort list
+	    
+	            for word in AllWords:   #for each word in line.split()
+	                  if word not in ResultList:    #if a word isn't in line.split            
+	                        ResultList.append(word)   #append it.
+	             #print(ResultList)
+	                 #query_doc = [w.lower() for w in word_tokenize(line) if w not in stop_words]
+	                 #print(query_doc)
+	            query_doc = [w.lower() for w in ResultList if w not in stop_words]
+	    
+	            #print(query_doc)
+	            query_doc_bow = dictionary2.doc2bow(query_doc)
+	            #print(query_doc_bow)
+	            query_doc_tf_idf = tf_idf2[query_doc_bow]
+	            #print(query_doc_tf_idf)
+	            a=sims2[query_doc_tf_idf]
+	            q=[a[i] for i, e in enumerate(a) if e != 0]  
+	            obtacc2=sum(q)
+	            print("obtacc2:",obtacc2)
+	            if obtacc2>acc2:
+	                 obtacc2=acc2 
+	            obtmarks2=(obtacc2/acc2)*marks2
+	            print("obtmarks2:",obtmarks2)                     
+	        
+	        c= stdthdestination                
+	        with open(c,'r') as myfile:
+	            lines=myfile.readlines()[d+1:e]
+	            #print(lines)
+	            lines = [''.join(a for a in s if a not in string.punctuation) for s in lines]
+	            q=[]
+	            AllWords = list()      #create new list
+	            ResultList = list()
+	            for line in lines:
+	                line.rstrip()   #strip white space
+	                words = line.split()    #split lines of words and make list
+	                AllWords.extend(words)   #make the list from 4 lists to 1 list
+
+	            AllWords.sort()  #sort list
+
+	            for word in AllWords:   #for each word in line.split()
+	                  if word not in ResultList:    #if a word isn't in line.split            
+	                        ResultList.append(word)   #append it.
+	             #print(ResultList)
+	                 #query_doc = [w.lower() for w in word_tokenize(line) if w not in stop_words]
+	                 #print(query_doc)
+	            query_doc = [w.lower() for w in ResultList if w not in stop_words]
+
+	             #print(query_doc)
+	            query_doc_bow = dictionary3.doc2bow(query_doc)
+	            #print(query_doc_bow)
+	            query_doc_tf_idf = tf_idf3[query_doc_bow]
+	            #print(query_doc_tf_idf)
+	            a=sims3[query_doc_tf_idf]
+	            q=[a[i] for i, e in enumerate(a) if e != 0]  
+	            obtacc3=sum(q)
+	            print("obtacc3:",obtacc3)
+	            if obtacc3>acc3:
+	                obtacc3=acc3                      
+	            obtmarks3=(obtacc3/acc3)*marks3
+	            print("obtmarks3:",obtmarks3)
 	    
     
             
