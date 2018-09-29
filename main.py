@@ -175,3 +175,55 @@ def make_objective():
 		appendfile.close()
 		print("inserted succesfully in question")
 		return redirect(url_for('mcq_world',_anchor='mcq_marks'))
+    elif mcqfinishbtn=='finishclick':
+		session['mcou']+=1
+		mpaper = request.form.get('mcq_paper')
+		mcqpaper = request.form.get('mcq_paper')+'mcq'
+		mcqtmarks = request.form.get('mcq_tmarks')
+		mcqques = request.form.get('mcq_ques')
+		mcqmarks = request.form.get('mcq_marks')
+		optiona = request.form.get('opta')
+		optionb = request.form.get('optb')
+		optionc = request.form.get('optc')
+		optiond = request.form.get('optd')
+		optione = request.form.get('opte')
+		
+		mcqfinish_btn="true"
+		conn=psycopg2.connect("dbname=checker user=postgres password=areeba host=localhost")
+		cur=conn.cursor()
+		cur.execute("SELECT userid from userinfo where name=%s",(fullname,))
+		rows=cur.fetchall()
+		uid=rows[0][0]
+		# print(user_id)
+		# cur.execute("INSERT INTO  paper (paper_name,userid) VALUES(%s,%s)",(mcqpaper,uid))
+		# conn.commit()
+		cur.execute("SELECT paper_id from paper where paper_name=%s AND userid=%s",(mcqpaper,uid))
+		rows=cur.fetchall()
+		pid=rows[0][0]
+		cur.execute("INSERT INTO  question (paper_id,q_id,userid) VALUES(%s,%s,%s)",(pid,session['mcou'],uid))
+		conn.commit()
+		cur.execute("UPDATE question SET paper_name=%s,total_marks=%s,q_name=%s,marks_of_q=1 WHERE userid=%s AND paper_id=%s AND q_id=%s",(mcqpaper,mcqtmarks,mcqques,uid,pid,session['mcou']))
+		conn.commit()
+
+		s1="Q"+str(session['mcou'])+": "+mcqques+"\r\n"
+		s2="A)  "+optiona+"   B)  "+optionb+"   C)  "+optionc+"   D)  "+optiond+"   E)  "+optione+"\r\n"
+		appendfile=open('mcq.txt','a')
+		appendfile.write(s1)
+		appendfile.write(s2)
+		appendfile.close()
+		print("inserted succesfully in question")
+		session.pop('mcou',None)
+		session['mcou'] = session.get('mcou',0) 
+
+		# cur.execute("INSERT INTO  question (q_id,paper_name, total_marks, q_name,marks_of_q) VALUES(%s,%s,%s,%s,%s)",(session['mcou'],mcqpaper,mcqtmarks,mcqques,mcqmarks))
+		# conn.commit()
+		# cur.execute("SELECT paper_id,paper_name from paper where paper_name=%s AND userid=%s",(mcqpaper,uid))
+		# rows=cur.fetchall()
+		# pid=rows[0][0]
+		# print("paper_id: ",pid)
+		# pname=rows[0][1]
+		# print("paer_name: ",pname)
+		# cur.execute("UPDATE question SET paper_id=%s WHERE paper_name=%s AND userid=%s",(pid,pname,uid))
+		# conn.commit()
+		return redirect(url_for('mcq_world',_anchor='mcq_marks'))
+    
