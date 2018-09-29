@@ -1452,7 +1452,196 @@ def definition_file():
 	                obtacc3=acc3                      
 	            obtmarks3=(obtacc3/acc3)*marks3
 	            print("obtmarks3:",obtmarks3)
-	    
+	conn=psycopg2.connect("dbname=checker user=postgres password=areeba host=localhost")
+	cur=conn.cursor()
+	# cur.execute("INSERT INTO std (paper_id,q_id,marks_of_ques,total_marks) SELECT paper_id,q_id,marks_of_q,total_marks FROM question q WHERE q.paper_name = %s",(mcqpaper,))
+	
+	cur.execute("SELECT userid from userinfo where name=%s",(fullname,))
+	rows=cur.fetchall()
+	uid=rows[0]
+	print(uid)
+	cur.execute("SELECT paper_id from paper where paper_name=%s AND userid=%s",(thpaper,uid))
+	rows=cur.fetchall()
+	pid=rows[0]
+	cur.execute("SELECT std_id FROM stdinfo WHERE std_rollnum = %s",(rollno,))
+	rows=cur.fetchall()
+	stdid=rows[0]
+	cur.execute("SELECT total_marks FROM question WHERE paper_id = %s",(pid,))
+	rows=cur.fetchall()
+	tmarks=rows[0]
+	cur.execute("INSERT INTO std (paper_id,q_id,marks_of_ques,total_marks,std_id,std_rollnum) SELECT paper_id,q_id,marks_of_q,total_marks,%s,%s FROM question q WHERE q.paper_name = %s ",(stdid,rollno,thpaper,))
+	conn.commit()
+	cur.execute("UPDATE std SET obt_marks_of_ques= %s,acc_of_ques=%s WHERE paper_id=%s AND q_id=1 AND std_rollnum=%s", (int(obtmarks1),obtacc1,pid,rollno))
+	conn.commit()
+	cur.execute("UPDATE std SET obt_marks_of_ques= %s,acc_of_ques=%s WHERE paper_id=%s AND q_id=2 AND std_rollnum=%s", (int(obtmarks2),obtacc2,pid,rollno))
+	conn.commit()
+	cur.execute("UPDATE std SET obt_marks_of_ques= %s,acc_of_ques=%s WHERE paper_id=%s AND q_id=3 AND std_rollnum=%s", (int(obtmarks3),obtacc3,pid,rollno))
+	conn.commit()
+	return redirect(url_for('check'))
+
+	
+	
+
+@app.route('/result', methods=['POST'])
+def my_result():
+	global paper
+	global rows3,rows4,rows2,rows_len
+	paper = request.form.get('paper')
+	mcqpaper=paper.capitalize()+'mcq'
+	theorypaper=paper.capitalize()
+
+	conn=psycopg2.connect("dbname=checker user=postgres password=areeba host=localhost")
+	cur=conn.cursor()
+	cur.execute("SELECT paper_id from paper where paper_name=%s OR paper_name= %s",(mcqpaper,theorypaper))
+	rows1=cur.fetchall()
+	mcqpaper=rows1[0]
+	theorypaper=rows1[1]
+
+	print(str(mcqpaper)+" "+str(theorypaper))
+	# cur.execute("SELECT DISTINCT paper_name,std_rollnum,obt_marks_of_ques,total_marks from std where std.paper_id=paper.paper_id")
+	# rows2=cur.fetchall()
+	# print(rows2)
+	cur.execute("select count(*) from(SELECT DISTINCT std_rollnum,obt_marks_of_ques,total_marks from std where paper_id=%s)stdnew",(mcqpaper)) 
+	rows2=cur.fetchall()
+	rows2_len=rows2[0][0]
+	print(rows2_len)
+	cur.execute("SELECT DISTINCT std_rollnum,(obt_marks_of_ques::int),(total_marks::int) from std where paper_id=%s",(mcqpaper))
+	rows3=cur.fetchall()
+	global stdrollnum
+	print(rows3)
+	stdrollnum=rows3[0][0]
+	print(stdrollnum)
+	print(rows3)
+	
+	# print("Rows : "+count(rows2))
+	# SUM(obt_marks_of_ques::decimal)
+	cur.execute("SELECT  SUM(obt_marks_of_ques::int),(total_marks::int) from std where paper_id=%s GROUP BY total_marks,std_rollnum",(theorypaper))
+	rows4=cur.fetchall()
+	print(rows4)
+	cur.execute("SELECT DISTINCT std_rollnum from std where paper_id=%s OR paper_id=%s",(theorypaper,mcqpaper))
+	rows5=cur.fetchall()
+	print(rows5)
+	cur.execute("select count(*) from(SELECT DISTINCT std_rollnum from std where paper_id=%s OR paper_id=%s)stdquan",(theorypaper,mcqpaper))
+	rows6=cur.fetchall()
+	print(rows6[0][0])
+	cur.execute("select count(*) from(SELECT  obt_marks_of_ques,marks_of_ques from std where paper_id=%s AND std_rollnum=%s)thtques",(theorypaper,stdrollnum))
+	rows7=cur.fetchall()
+	print("Total ques of theory is "+ str(rows5[0][0]),"of rolno "+str(stdrollnum))
+	str(_decimal.Decimal('0.1'))
+
+	return render_template('result2.html',rows3=rows3,rows4=rows4,rows_len=rows2_len,paper=paper,username=fullname)	
+
+# @app.route('/try')
+# def trY():
+# 	<embed src="try.pdf" type='application/pdf'   width="500" height="375">
+#     return("helloworld")
+	# return send_from_directory(app.config['templates'], 'templates/try.pdf')
+	
+	# with open('templates/try.pdf', 'rb') as static_file:
+
+	# 	return send_file(static_file, attachment_filename='templates/try.pdf')
+	# pdf=FPDF()
+	# pdf.output('templates/try.pdf','F')
+	# return send_from_directory(directory='templates',
+ #                               filename='try.pdf',
+ #                               mimetype='application/pdf')
+
+	
+
+
+
+@app.route('/descview',methods=['POST'])
+def th_view():
+	myrollno=request.form.get('rollno')
+	print(myrollno.value())
+	lookup = "what is computer?"
+	lookup2= "where are you taking the show?"
+	lookup3= "what is pc?"
+	path1=os.path.join(APP_ROOT, '\studenttheory')
+	stdpath=path1+"\\"+stdrollnum+".txt"
+	print(stdpath)
+	with open(stdpath, 'r') as myFile:
+		for num, line in enumerate(myFile, 0):
+			if lookup in line:
+				print('found at line:', num)
+				a=num
+				l=a+1
+			if lookup2 in line:
+				print('found at line:', num)
+				b=num
+				m=b+1
+			if lookup3 in line:
+				print('found at line:', num)
+				d=num
+
+	return(str(a)+" "+str(b)+" "+str(d))
+	# pdf=FPDF()
+	# pdf.add_page()
+	# pdf.set_font('Arial','B',14)
+	# pdf.cell(100, 7, """          								                XYZ School Of Education And Excellence""",0,1 )
+	# pdf.cell(100, 7, """          								 
+	# 															   EXAMINATIONS:2017-2018""",0,1 )
+	# pdf.cell(100, 7, """           								 
+	# 															          BATCH:2014-2015""",0,1 )
+	# pdf.cell(100, 7, "",0,1 )
+	# pdf.cell(100, 7, "Time:150mins\n",0,1 )
+	# pdf.cell(100, 7, "",0,1 )
+	# pdf.set_font('Arial','', 14)
+	# pdf.cell(100, 7, "Instruction:",0,1 )
+	# pdf.cell(100, 7, "			Read Paper Carefully",0,1 )
+	# pdf.cell(100, 7, "",0,1 )
+	# pdf.cell(100, 7, "",0,1 )
+	# pdf.set_font('Arial','', 14)
+	# with open(stdpath) as fp:
+	# 	line = fp.readline()
+	# 	cnt = 1
+	# 	while line:
+	# 		pdf.set_font('Arial','B',14)
+	# 		pdf.cell(100, 7, ""+line.strip(),0,1 )
+	# 		line = fp.readline()
+	# 		cnt += 1
+	
+	
+	# if (os.path.isfile('templates/checkeddescriptive.pdf')):
+	# 	os.remove('templates/checkeddescriptive.pdf')
+	
+	# # print("rows is :"+str(rows))
+	# # with open("mcq.txt", "r") as lst:
+	# # 	for i in range(0,rows):
+	# # 		item=""
+	# # 		# item[0]=lst[.read().splitlines()]
+	# # 		item=lst[0]
+	# # 		print("Item is "+item)
+	# # 		pdf.cell(120, 7, "\r\n"+str(lst.read().splitlines()) + "                         \r\n",0,1 )
+
+	# 	# print(lst.read().splitlines())
+	# # file = open("mcq.txt",'r')
+	# # for i in range(max(0, rows-100),rows,1):
+	# # 	pdf.cell(120, 7, "\r\n"+file[i] + "                         \r\n",0,1 )
+
+ #    # for i = max(0, count(file)-100); i < count(file); i+=1:
+ #    # 	pdf.cell(120, 7, "\r\n".file[i] . "                         \r\n",0,1 )
+	# pdf.output('templates/checkeddescriptive.pdf','F')
+	# return send_from_directory(directory='templates',
+ #                               filename='checkeddescriptive.pdf',
+ #                               mimetype='application/pdf')
+	
+	# if (os.path.isfile('templates/checkeddescriptive.pdf')):
+	# 	os.remove('templates/checkeddescriptive.pdf')
+
+	
+	
+
+	# return("helloworld "+paper+"rollnum "+(stdrollnum)+"studentpath "+stdpath)
+	
+	
+	
+
+
+
+
+
+    
     
             
 
